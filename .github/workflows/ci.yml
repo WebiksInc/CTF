@@ -24,7 +24,7 @@ jobs:
     - name: Build and Push Docker Image for aarch64
       env:
         ECR_URL: "${{ steps.login-ecr.outputs.registry }}/"
-        AWS_REGION: ${{ secrets.AWS_REGION }}
+        AWS_REGION: il-central-1
         ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
       run: |
         docker buildx create --use
