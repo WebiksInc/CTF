@@ -20,7 +20,7 @@ from CTFd.utils.decorators.visibility import check_registration_visibility
 from CTFd.utils.helpers import error_for, get_errors, markup, get_infos
 from CTFd.utils.logging import log
 from CTFd.utils.modes import TEAMS_MODE
-from CTFd.utils.security.auth import login_user, logout_user, login_user_new, save_token
+from CTFd.utils.security.auth import login_user, logout_user
 from CTFd.utils.security.signing import unserialize
 from CTFd.utils.validators import ValidationError
 from CTFd.utils.aws.auth_helpers import cognito_registration, cognito_confirm_registration, cognito_login

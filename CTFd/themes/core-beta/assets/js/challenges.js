@@ -65,7 +65,7 @@ Alpine.data("Challenge", () => ({
   share_url: null,
   max_attempts: 0,
   attempts: 0,
-
+  loading: false,
   async init() {
     highlight();
   },
@@ -259,7 +259,9 @@ Alpine.data("ChallengeBoard", () => ({
   },
 
   async loadChallenge(challengeId) {
+     Alpine.store("challenge").loading = true;
     await CTFd.pages.challenge.displayChallenge(challengeId, challenge => {
+      Alpine.store("challenge").loading = false;
       challenge.data.view = addTargetBlank(challenge.data.view);
       Alpine.store("challenge").data = challenge.data;
 

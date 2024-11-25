@@ -19,4 +19,4 @@ os.environ["LOG_FOLDER"] = "/var/log/CTFd"
 os.environ["REVERSE_PROXY"] = "true"
 
 # Execute the shell script
-subprocess.run(["/bin/bash", "CTFD/dev-entrypoint.sh"])
+subprocess.run(["/bin/bash", "./dev-entrypoint.sh"])

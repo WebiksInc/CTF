@@ -62,6 +62,8 @@ from CTFd.utils.user import is_admin
 
 @admin.route("/admin", methods=["GET"])
 def view():
+    #temporarily disable admin restriction
+    return redirect(url_for("admin.statistics"))
     if is_admin():
         return redirect(url_for("admin.statistics"))
     return redirect(url_for("auth.login"))

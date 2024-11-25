@@ -11,29 +11,25 @@ from CTFd.constants.teams import TeamAttrs
 from CTFd.constants.users import UserAttrs
 from CTFd.models import Fails, Teams, Tracking, Users, db
 from CTFd.utils import get_config
-from CTFd.utils.security.auth import logout_user, validate_user_token
+from CTFd.utils.security.auth import logout_user
 from CTFd.utils.security.signing import hmac
+
 
 def get_current_user():
     if authed():
-        # user = Users.query.filter_by(id=session["id"]).first()
-        # # Check if the session is still valid
-        # session_hash = session.get("hash")
-        # if session_hash:
-        #     if session_hash != hmac(user.password):
-        #         logout_user()
-        #         if request.content_type == "application/json":
-        #             error = 401
-        #         else:
-        #             error = redirect(url_for("auth.login", next=request.full_path))
-        #         abort(error)
-        token_data = get_user_token_data(session['tokens']['IdToken'])
-        user = {
-            'id': token_data['sub'],
-            'email': token_data['email'],
-            'email_verified': token_data['email_verified'],
-            'username': token_data['cognito:username'],
-        }
+        user = Users.query.filter_by(id=session["id"]).first()
+
+        # Check if the session is still valid
+        session_hash = session.get("hash")
+        if session_hash:
+            if session_hash != hmac(user.password):
+                logout_user()
+                if request.content_type == "application/json":
+                    error = 401
+                else:
+                    error = redirect(url_for("auth.login", next=request.full_path))
+                abort(error)
+
         return user
     else:
         return None
@@ -134,13 +130,7 @@ def get_current_user_type(fallback=None):
 
 
 def authed():
-    # Check if the user is logged in based on the validity of the ouath token
-    #check if the token exists
-    if 'tokens' not in session:
-        print('No tokens in session')
-        print(session)
-        return False
-    return validate_user_token(session['tokens']['IdToken'])
+    return bool(session.get("id", False))
 
 
 def is_admin():

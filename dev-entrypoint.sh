@@ -9,13 +9,13 @@ WORKER_TEMP_DIR=${WORKER_TEMP_DIR:-/dev/shm}
 SECRET_KEY=${SECRET_KEY:-}
 SKIP_DB_PING=false
 UPLOAD_FOLDER=/var/uploads
-DATABASE_URL=mysql+pymysql://ctfd:ctfd@db/ctfd
-REDIS_URL=redis://cache:6379
+DATABASE_URL=
+REDIS_URL=
 WORKERS=1
-LOG_FOLDER=/var/log/CTFd
+LOG_FOLDER=
 ACCESS_LOG=-
 ERROR_LOG=-
-REVERSE_PROXY=true
+REVERSE_PROXY= 
 
 
 
@@ -31,18 +31,18 @@ if [ ! -f .ctfd_secret_key ] && [ -z "$SECRET_KEY" ]; then
 fi
 
 # Skip db ping if SKIP_DB_PING is set to a value other than false or empty string
-if [[ "$SKIP_DB_PING" == "false" ]]; then
-  # Ensures that the database is available
-  python ping.py
-  echo '[ INFO ] Database is available'
-fi
+# if [[ "$SKIP_DB_PING" == "false" ]]; then
+#   # Ensures that the database is available
+#   python ping.py
+#   echo '[ INFO ] Database is available'
+# fi
 # Initialize database
 flask db upgrade
 
 # Start CTFd
 echo "Starting CTFd"
 exec gunicorn 'CTFd:create_app()' \
-    --bind '0.0.0.0:8000' \
+    --bind '0.0.0.0:5000' \
     --workers $WORKERS \
     --worker-tmp-dir "/tmp" \
     --worker-class "$WORKER_CLASS" \

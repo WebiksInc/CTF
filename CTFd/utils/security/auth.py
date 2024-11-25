@@ -42,7 +42,6 @@ def save_token(token):
 
 def login_user(tokens):
     token_data = get_user_token_data(tokens['IdToken'])
-    session['tomer'] = 'tomer'
     # clear_user_session(user_id=token_data['sub'])
     session['id'] = uuid_to_number(token_data['sub']) #the conversion is necessary (temporarily) because the user id is stored as a string in the token
     session['tokens']  = tokens
