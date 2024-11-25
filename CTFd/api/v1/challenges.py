@@ -1,6 +1,6 @@
+import json
 from typing import List  # noqa: I001
-
-from flask import abort, render_template, request, url_for
+from flask import abort, render_template, request, url_for, session
 from flask_restx import Namespace, Resource
 from sqlalchemy.sql import and_
 
@@ -53,7 +53,8 @@ from CTFd.utils.user import (
     get_current_user_attrs,
     is_admin,
 )
-
+from CTFd.utils.aws.challenges import send_deployment_request
+from CTFd.utils.aws.user import update_user_attributes
 challenges_namespace = Namespace(
     "challenges", description="Endpoint to retrieve Challenges"
 )
@@ -145,7 +146,7 @@ class ChallengeList(Resource):
         # Get list of solve_ids for current user
         if authed():
             user = get_current_user()
-            user_solves = get_solve_ids_for_user_id(user_id=user.id)
+            # user_solves = get_solve_ids_for_user_id(user_id=user.id)
         else:
             user_solves = set()
 
@@ -211,7 +212,7 @@ class ChallengeList(Resource):
                     "name": challenge.name,
                     "value": challenge.value,
                     "solves": solve_counts.get(challenge.id, solve_count_dfl),
-                    "solved_by_me": challenge.id in user_solves,
+                    # "solved_by_me": challenge.id in user_solves,
                     "category": challenge.category,
                     "tags": tag_schema.dump(challenge.tags).data,
                     "template": challenge_type.templates["view"],
@@ -356,7 +357,7 @@ class Challenge(Resource):
         hints = []
         if authed():
             user = get_current_user()
-            team = get_current_team()
+            # team = get_current_team()
 
             # TODO: Convert this into a re-useable decorator
             if is_admin():
@@ -365,12 +366,12 @@ class Challenge(Resource):
                 if config.is_teams_mode() and team is None:
                     abort(403)
 
-            unlocked_hints = {
-                u.target
-                for u in HintUnlocks.query.filter_by(
-                    type="hints", account_id=user.account_id
-                )
-            }
+            # unlocked_hints = {
+            #     u.target
+            #     for u in HintUnlocks.query.filter_by(
+            #         type="hints", account_id=user.account_id
+            #     )
+            # }
             files = []
             for f in chal.files:
                 token = {
@@ -397,7 +398,7 @@ class Challenge(Resource):
         # Get list of solve_ids for current user
         if authed():
             user = get_current_user()
-            user_solves = get_solve_ids_for_user_id(user_id=user.id)
+            # user_solves = get_solve_ids_for_user_id(user_id=user.id)
         else:
             user_solves = []
 
@@ -413,21 +414,26 @@ class Challenge(Resource):
         if scores_visible() is False or accounts_visible() is False:
             solve_count = None
 
-        if authed():
-            # Get current attempts for the user
-            attempts = Submissions.query.filter_by(
-                account_id=user.account_id, challenge_id=challenge_id
-            ).count()
-        else:
-            attempts = 0
+        # if authed():
+        #     # Get current attempts for the user
+        #     attempts = Submissions.query.filter_by(
+        #         account_id=user.account_id, challenge_id=challenge_id
+        #     ).count()
+        # else:
+        #     attempts = 0
 
+        
+        challenge_secrets  = json.dumps(send_deployment_request(challenge_id, session['tokens']["IdToken"]))
+        #update_user_attributes(session['tokens']["AccessToken"], {'active_c': challenge_id})
+        print('*******')
+        print(challenge_secrets)
+        response["secrets"] = challenge_secrets
         response["solves"] = solve_count
         response["solved_by_me"] = solved_by_user
-        response["attempts"] = attempts
+        # response["attempts"] = attempts
         response["files"] = files
         response["tags"] = tags
         response["hints"] = hints
-
         response["view"] = render_template(
             chal_class.templates["view"].lstrip("/"),
             solves=solve_count,
@@ -436,11 +442,14 @@ class Challenge(Resource):
             tags=tags,
             hints=[Hints(**h) for h in hints],
             max_attempts=chal.max_attempts,
-            attempts=attempts,
+            # attempts=attempts,
             challenge=chal,
+            secrets=challenge_secrets,
         )
 
         db.session.close()
+
+        # delay the return of this response in 10 seconds
         return {"success": True, "data": response}
 
     @admins_only

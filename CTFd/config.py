@@ -131,6 +131,8 @@ class ServerConfig(object):
         )
         # Override the threshold of cached values on the filesystem. The default is 500. Don't change unless you know what you're doing.
         CACHE_THRESHOLD: int = 0
+    
+    APP_ENV: str = empty_str_cast(config_ini["server"]["APP_ENV"])
 
     # === SECURITY ===
     SESSION_COOKIE_HTTPONLY: bool = config_ini["security"].getboolean("SESSION_COOKIE_HTTPONLY", fallback=True)
@@ -252,6 +254,12 @@ class ServerConfig(object):
     OAUTH_CLIENT_ID: str = empty_str_cast(config_ini["oauth"]["OAUTH_CLIENT_ID"])
     OAUTH_CLIENT_SECRET: str = empty_str_cast(config_ini["oauth"]["OAUTH_CLIENT_SECRET"])
 
+     # === AWS COGNITO ===
+    COGNITO_REGION: str = empty_str_cast(config_ini["aws"]["COGNITO_REGION"])
+    COGNITO_USER_POOL_ID: str = empty_str_cast(config_ini["aws"]["COGNITO_USER_POOL_ID"])
+
+    # === NEWNAME ===
+    DEPLOY_SERVICE_ADDRESS: str = empty_str_cast(config_ini["newname"]["DEPLOY_SERVICE_ADDRESS"])
     # === EXTRA ===
     # Since the configurations in section "[extra]" will be loaded later, it is not necessary to declare them here.
     # However, if you want to have some processing or checking on the value, you can still declare it here just like other configurations.
