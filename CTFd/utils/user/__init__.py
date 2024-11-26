@@ -11,6 +11,7 @@ from CTFd.constants.teams import TeamAttrs
 from CTFd.constants.users import UserAttrs
 from CTFd.models import Fails, Teams, Tracking, Users, db
 from CTFd.utils import get_config
+from CTFd.utils.aws.auth_helpers import validate_cognito_token
 from CTFd.utils.security.auth import logout_user
 from CTFd.utils.security.signing import hmac
 
@@ -128,9 +129,17 @@ def get_current_user_type(fallback=None):
     else:
         return fallback
 
+@cache.memoize(timeout=1)
+def validate_token(token):
+    return validate_cognito_token(token)
+
 
 def authed():
-    return bool(session.get("id", False))
+    #TBD -> implement refresh token flow
+    token_validation_result = validate_token(session['tokens']['IdToken'])
+    if token_validation_result['success'] and bool(session.get("id", False)):
+        return True
+    return 
 
 
 def is_admin():
