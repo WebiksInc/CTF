@@ -54,7 +54,7 @@ from CTFd.utils.user import (
     is_admin,
 )
 from CTFd.utils.aws.challenges import send_deployment_request
-#from CTFd.utils.aws.user import update_user_attributes
+from CTFd.utils.security.auth import update_user_info
 challenges_namespace = Namespace(
     "challenges", description="Endpoint to retrieve Challenges"
 )
@@ -424,9 +424,7 @@ class Challenge(Resource):
 
         
         challenge_secrets  = json.dumps(send_deployment_request(challenge_id, session['tokens']["IdToken"]))
-        #update_user_attributes(session['tokens']["AccessToken"], {'active_c': challenge_id})
-        print('*******')
-        print(challenge_secrets)
+        update_user_info({'custom:active_c': challenge_id})
         response["secrets"] = challenge_secrets
         response["solves"] = solve_count
         response["solved_by_me"] = solved_by_user
