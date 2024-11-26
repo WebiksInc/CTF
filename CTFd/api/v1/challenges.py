@@ -54,7 +54,7 @@ from CTFd.utils.user import (
     is_admin,
 )
 from CTFd.utils.aws.challenges import send_deployment_request
-from CTFd.utils.aws.user import update_user_attributes
+#from CTFd.utils.aws.user import update_user_attributes
 challenges_namespace = Namespace(
     "challenges", description="Endpoint to retrieve Challenges"
 )
