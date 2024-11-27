@@ -425,6 +425,7 @@ class Challenge(Resource):
         
         challenge_secrets  = json.dumps(send_deployment_request(challenge_id, session['tokens']["IdToken"]))
         update_user_info({'custom:active_c': challenge_id})
+        session['userInStage'] = challenge_id #to indicate that the user is in the stage, for opening the terminal
         response["secrets"] = challenge_secrets
         response["solves"] = solve_count
         response["solved_by_me"] = solved_by_user

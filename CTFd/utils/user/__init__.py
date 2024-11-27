@@ -129,6 +129,19 @@ def get_current_user_type(fallback=None):
     else:
         return fallback
 
+def isUserInStage():
+    if not authed() or not session.get("tokens"):
+        return False
+    if session.get('userInStage'): #for the case when user is in stage but didn't replace the access token yet
+        if session['userInStage'] != "0":
+            return True
+    token_validation_result = validate_token(session['tokens']['IdToken'])
+    if token_validation_result['success']:
+        if token_validation_result['data'].get('custom:active_c'):
+            if token_validation_result['data']['custom:active_c'] != "0":
+                return True
+    return False
+
 @cache.memoize(timeout=1)
 def validate_token(token):
     return validate_cognito_token(token)
@@ -136,11 +149,14 @@ def validate_token(token):
 
 def authed():
     #TBD -> implement refresh token flow
+    if not session.get("tokens"):
+        return False
     token_validation_result = validate_token(session['tokens']['IdToken'])
     if token_validation_result['success'] and bool(session.get("id", False)):
         return True
-    return 
-
+    else: 
+        logout_user() 
+        return False
 
 def is_admin():
     if authed():

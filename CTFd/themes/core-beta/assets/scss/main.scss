@@ -54,3 +54,66 @@ button {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3e%3cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e");
   background-size: 8px 10px;
 }
+#terminal-container {
+  position: fixed;
+  bottom:0px;
+  left:0xp;
+  width: 100%;
+  max-height: 50%;
+  min-height: 30px;
+}
+#split {
+  align-items: center;
+  display: flex;
+  height: 5px;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  padding-bottom: 0pxl;
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 1px;
+  width: 100%;
+  tab-size: 4;
+  background-color: rgb(219, 219, 219);
+  cursor: ns-resize;
+  outline-color: rgb(0, 0, 0);
+  outline-style: none;
+  outline-width: 0px;
+  fill: rgb(50, 49, 48);
+}
+#terminal-nav-bar {
+  height: 30px;
+  width: 100%;
+  font-size: 13px;
+  font-weight: 400;
+  color:rgb(41, 40, 39);
+  background-color: white;
+  display: flex;
+  flex-direction: row-reverse;
+}
+#terminal {
+  height: 100%;
+  width: 100%;
+  display: inline;
+}
+#minimize-button {
+
+}
+#restore-button {
+  display: none;
+}
+
+.terminal-button {
+  font-size: 12px;
+  height: 20px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.terminal-button:hover {
+  background-color: #e0e0e0;
+}
+.icon {
+  height: 25px;
+}

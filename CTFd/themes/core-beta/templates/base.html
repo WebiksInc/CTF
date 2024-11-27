@@ -15,7 +15,8 @@
   {{ Plugins.styles }}
 
   {{ Assets.js("assets/js/color_mode_switcher.js", type=None) }}
-
+  <link rel="stylesheet" href="https://unpkg.com/xterm/css/xterm.css" />
+  <script src="https://unpkg.com/xterm/lib/xterm.js"></script>
   <script type="text/javascript">
       window.init = {
           'urlRoot': "{{ request.script_root }}",
@@ -34,9 +35,154 @@
             "/themes/core/static/sounds/notification.mp3",
           ],
       }
+
+  //terminal js
+  window.onload = () => { 
+    const container = document.getElementById('terminal-wrapper');
+
+    const terminalWrapper = document.getElementById('terminal-wrapper');
+    const minimizeButton = document.getElementById('minimize-button');
+    const restoreButton = document.getElementById('restore-button');
+
+    let isMinimized = false;
+
+    minimizeButton.addEventListener('click', () => {
+      // Minimize the terminal
+          terminalWrapper.style.height = '0px'; // Just show the nav-bar
+          minimizeButton.style.display = 'none';
+          restoreButton.style.display = 'inline';
+    
+        isMinimized = true;
+    });
+
+    restoreButton.addEventListener('click', () => {
+        // Maximize the terminal
+        terminalWrapper.style.height = '100%';
+        minimizeButton.style.display = 'inline';
+        restoreButton.style.display = 'none';
+        isMinimized = false;
+    });
+
+
+
+    const split = document.getElementById('split');
+
+    let isResizing = false;
+
+    split.addEventListener('mousedown', (e) => {
+      isResizing = true;
+      document.body.style.cursor = 'ns-resize';
+      document.body.style.userSelect = 'none';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return;
+
+      const newHeight = window.innerHeight - e.clientY;
+      container.style.height = `${Math.max(0, Math.min(newHeight, window.innerHeight / 2))}px`;
+    });
+
+    document.addEventListener('mouseup', () => {
+      isResizing = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    });
+
+    const exampleString = JSON.stringify({
+    "Users": [
+        {
+            "Path": "/",
+            "UserName": "admin-user",
+            "UserId": "AID1234567890EXAMPLE",
+            "Arn": "arn:aws:iam::123456789012:user/admin-user",
+            "CreateDate": "2024-01-01T12:00:00Z"
+        },
+        {
+            "Path": "/",
+            "UserName": "developer-user",
+            "UserId": "AID9876543210EXAMPLE",
+            "Arn": "arn:aws:iam::123456789012:user/developer-user",
+            "CreateDate": "2024-06-15T08:30:00Z"
+        }
+    ]
+}, null, 4).replace(/\n/g, '\r\n');
+    function mockBackend(command) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                if(command === 'aws iam list-users')
+                    resolve(exampleString)
+                else 
+                    resolve(`Mock response for: ${command}`);
+            }, 300); // Simulate some latency
+        });   
+    }
+
+
+    var term = new window.Terminal({
+      cursorBlink: true
+    });
+    term.open(document.getElementById('terminal'));
+    function init() {
+      if (term._initialized) {
+          return;
+      }
+
+      term._initialized = true;
+          // Define the terminal prompt
+      term.prompt = () => {
+          term.write('\r\n\x1b[32m> \x1b[0m'); // Green ">" prompt
+      };
+      setTimeout(() => {
+          term.prompt();
+      }, 300);
+      let currentCommand = '';
+      term.onKey(async (keyObj) => {
+          const key = keyObj.key;
+          const domEvent = keyObj.domEvent;
+
+          if (domEvent.key === 'Enter') {
+              term.write('\n');
+              const response = await mockBackend(currentCommand.trim());
+              term.write(`\r${response}\n`);
+              currentCommand = ''; // Reset the command buffer
+              term.prompt();
+          } else if (domEvent.key === 'Backspace') {
+              // Handle backspace
+              if (currentCommand.length > 0) {
+                  currentCommand = currentCommand.slice(0, -1);
+                  term.write('\b \b'); // Erase the last character on the screen
+              }
+          } else if (domEvent.key.length === 1) {
+              // Regular character input
+              currentCommand += key;
+              term.write(key);
+          }
+      });
+
+      term.attachCustomKeyEventHandler((e) => {
+          if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+              navigator.clipboard.readText().then(text => {
+                  runCommand(text);
+              });
+              return false;
+          }
+          return true;
+      });
+      term.write("\rHello ctfd user, welcome to the web based terminal.\n");
+      term.write("\rFrom here you can access all relevant resources and tools for this stage.\n");
+      term.write("\rthe aws credentials are already set up for you, so you can start using the aws cli right away.");
+      term.write("\rIf you need any help, please type 'help' and press enter. \n");
+      term.write("\rFor Example usage, you can try typing this: aws iam list-users \n");
+  }
+
+init();
+
+  };
+
   </script>
 
   {{ Configs.theme_header }}
+
 </head>
 <body>
 {% include "components/navbar.html" %}
@@ -45,6 +191,8 @@
   {% block content %}
   {% endblock %}
 </main>
+
+{% include "components/terminal.html" %}
 
 <footer class="footer">
   <div class="container text-center">
@@ -65,5 +213,6 @@
 {{ Plugins.scripts }}
 
 {{ Configs.theme_footer }}
+
 </body>
 </html>
