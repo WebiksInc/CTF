@@ -136,6 +136,8 @@ def validate_token(token):
 
 def authed():
     #TBD -> implement refresh token flow
+    if 'tokens' not in session:
+        return False
     token_validation_result = validate_token(session['tokens']['IdToken'])
     if token_validation_result['success'] and bool(session.get("id", False)):
         return True
