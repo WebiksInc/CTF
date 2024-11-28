@@ -8,7 +8,7 @@ from CTFd.utils.encoding import hexencode
 from CTFd.utils.security.csrf import generate_nonce
 from CTFd.utils.security.signing import hmac
 from CTFd.utils.aws.auth_helpers import cognito_login, validate_cognito_token, uuid_to_number
-
+from CTFd.utils.aws.user import update_user_attributes
 from flask import redirect
 
 def login_user_new(username, password, registration_data = None):
@@ -88,3 +88,6 @@ def lookup_user_token(token):
     else:
         raise UserNotFoundException
     return None
+
+def update_user_info(attributes_list):  
+    return update_user_attributes(session['tokens']["AccessToken"], attributes_list)    
