@@ -26,9 +26,9 @@ def listing():
         and authed() is False
     ):
         pass
-    else:
-        if is_teams_mode() and get_current_team() is None:
-            return redirect(url_for("teams.private", next=request.full_path))
+    # else:
+    #     if is_teams_mode() and get_current_team() is None:
+    #         return redirect(url_for("teams.private", next=request.full_path))
 
     infos = get_infos()
     errors = get_errors()
