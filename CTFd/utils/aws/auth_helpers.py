@@ -44,7 +44,6 @@ def cognito_registration(user):
         print(response)
         return {'success': True, 'message': 'User registered successfully!', 'data': response}
     except cognito.exceptions.ClientError as e:
-        print('@@@@')
         print(e)
         print(f"Error during user registration: {e.response['Error']['Message']}")
         return {'success': False, 'message': e.response['Error']['Message']}

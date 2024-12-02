@@ -7,24 +7,8 @@ from CTFd.models import UserTokens, db
 from CTFd.utils.encoding import hexencode
 from CTFd.utils.security.csrf import generate_nonce
 from CTFd.utils.security.signing import hmac
-from CTFd.utils.aws.auth_helpers import cognito_login, validate_cognito_token, uuid_to_number
-from CTFd.utils.aws.user import update_user_attributes
-from flask import redirect
-
-def login_user_new(username, password, registration_data = None):
-    #before logging, check if the user is confirmed
-    authenticationResult = cognito_login(username, password)
-    if(not authenticationResult['success']):
-        if(authenticationResult['error'] == 'user_not_confirmed'):
-            #handle user not confirmed
-            return
-        else:
-            #handle other errors
-            return
-    if authenticationResult['success']:
-        print(authenticationResult['data'])
-        session['tokens']  = authenticationResult['data']
-    return redirect(url_for("auth.login"))
+from CTFd.utils.aws.auth_helpers import validate_cognito_token
+from CTFd.utils.user.user_manager import UserManager, getUserIdFromCognitoSub
 
 def validate_user_token(token):
     # this is wrapper function for the oauth token validation
@@ -42,8 +26,8 @@ def save_token(token):
 
 def login_user(tokens):
     token_data = get_user_token_data(tokens['IdToken'])
-    # clear_user_session(user_id=token_data['sub'])
-    session['id'] = uuid_to_number(token_data['sub']) #the conversion is necessary (temporarily) because the user id is stored as a string in the token
+    userCTFdId = getUserIdFromCognitoSub(token_data['sub'])
+    session['id'] = userCTFdId
     session['tokens']  = tokens
     session["nonce"] = generate_nonce()
     session.modified = True
@@ -89,5 +73,6 @@ def lookup_user_token(token):
         raise UserNotFoundException
     return None
 
-def update_user_info(attributes_list):  
-    return update_user_attributes(session['tokens']["AccessToken"], attributes_list)    
+def update_user_info(attributes_list): 
+    user = UserManager(session["id"], session['tokens']["AccessToken"])
+    return user.update_user_attributes(attributes_list)    

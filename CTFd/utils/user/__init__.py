@@ -14,8 +14,7 @@ from CTFd.utils import get_config
 from CTFd.utils.aws.auth_helpers import validate_cognito_token
 from CTFd.utils.security.auth import logout_user
 from CTFd.utils.security.signing import hmac
-
-
+from CTFd.utils.user.user_manager import UserManager
 def get_current_user():
     if authed():
         user = Users.query.filter_by(id=session["id"]).first()
@@ -39,17 +38,17 @@ def get_current_user():
 def get_current_user_attrs():
     if authed():
         try:
-            return get_user_attrs(user_id=session["id"])
+            return get_user_attrs(user_id=session["id"], access_token=session['tokens']['AccessToken'])
         except TypeError:
             clear_user_session(user_id=session["id"])
-            return get_user_attrs(user_id=session["id"])
+            return get_user_attrs(user_id=session["id"], access_token=session['tokens']['AccessToken'])
     else:
         return None
 
 
 @cache.memoize(timeout=300)
-def get_user_attrs(user_id):
-    user = Users.query.filter_by(id=user_id).first()
+def get_user_attrs(user_id, access_token):
+    user = UserManager(user_id, access_token)
     if user:
         d = {}
         for field in UserAttrs._fields:
@@ -101,10 +100,10 @@ def get_current_team():
 def get_current_team_attrs():
     if authed():
         try:
-            user = get_user_attrs(user_id=session["id"])
+            user = get_user_attrs(user_id=session["id"], access_token=session['tokens']['AccessToken'])
         except TypeError:
             clear_user_session(user_id=session["id"])
-            user = get_user_attrs(user_id=session["id"])
+            user = get_user_attrs(user_id=session["id"], access_token=session['tokens']['AccessToken'])
         if user and user.team_id:
             return get_team_attrs(team_id=user.team_id)
     return None

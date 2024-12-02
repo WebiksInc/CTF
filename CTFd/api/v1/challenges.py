@@ -146,7 +146,7 @@ class ChallengeList(Resource):
         # Get list of solve_ids for current user
         if authed():
             user = get_current_user()
-            # user_solves = get_solve_ids_for_user_id(user_id=user.id)
+            user_solves = get_solve_ids_for_user_id(user_id=user.id)
         else:
             user_solves = set()
 
@@ -212,7 +212,7 @@ class ChallengeList(Resource):
                     "name": challenge.name,
                     "value": challenge.value,
                     "solves": solve_counts.get(challenge.id, solve_count_dfl),
-                    # "solved_by_me": challenge.id in user_solves,
+                    "solved_by_me": challenge.id in user_solves,
                     "category": challenge.category,
                     "tags": tag_schema.dump(challenge.tags).data,
                     "template": challenge_type.templates["view"],
@@ -277,7 +277,6 @@ class ChallengeTypes(Resource):
 class Challenge(Resource):
     @check_challenge_visibility
     @during_ctf_time_only
-    @require_verified_emails
     @challenges_namespace.doc(
         description="Endpoint to get a specific Challenge object",
         responses={
