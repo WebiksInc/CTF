@@ -11,7 +11,7 @@ def send_deployment_request(challenge_id, idToken):
             "stage_id": "User-Agent-Bypass",
             "id_token": idToken,
         }
-        url = f"{deploy_service_address}/stage/deploy-for-user/"
+        url = f"{deploy_service_address}/stage/deploy-stage/"
         try:
             response = requests.post(url, json=payload)
             if response.status_code != 200:
