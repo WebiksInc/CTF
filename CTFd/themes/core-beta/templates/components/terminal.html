@@ -1,0 +1,20 @@
+{% if authed() %}
+    <div x-data="{ showTerminal: {{ show_terminal() | tojson }} }"  id="terminal-root">
+        <div id="terminal-container" x-show="showTerminal">
+            <div id="split"></div>
+            <div id="terminal-nav-bar"> 
+                <div id="minimize-button" class="terminal-button">
+                    <svg class="icon" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#000000"><path d="M14 8v1H3V8h11z"/></svg>
+                </div>
+                <div id="restore-button" class="terminal-button">
+                    <svg class="icon" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#000000">
+                        <path d="M5 6.5L7.5 4h.7l2.5 2.5-.7.71-1.65-1.64v5.57h-1V5.57L5.7 7.22 5 6.5z"/>
+                    </svg>
+                </div> 
+            </div>
+            <div id="terminal-wrapper">
+                <div id="terminal"></div>
+            </div>
+        </div>
+    </div>
+{% endif %}

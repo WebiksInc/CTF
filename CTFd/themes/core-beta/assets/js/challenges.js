@@ -262,6 +262,9 @@ Alpine.data("ChallengeBoard", () => ({
      Alpine.store("challenge").loading = true;
     await CTFd.pages.challenge.displayChallenge(challengeId, challenge => {
       Alpine.store("challenge").loading = false;
+      let terminalContainer = document.getElementById('terminal-root');
+      Alpine.$data(terminalContainer).showTerminal = true;
+
       challenge.data.view = addTargetBlank(challenge.data.view);
       Alpine.store("challenge").data = challenge.data;
 
