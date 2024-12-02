@@ -13,6 +13,7 @@ from CTFd.utils.crypto import sha256
 
 
 def update_check(force=False):
+    return
     """
     Makes a request to ctfd.io to check if there is a new version of CTFd available. The service is provided in return
     for users opting in to anonymous usage data collection. Users can opt-out of update checks by specifying
