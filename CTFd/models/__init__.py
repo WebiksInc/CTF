@@ -351,7 +351,6 @@ class Users(db.Model):
     __table_args__ = (db.UniqueConstraint("id", "oauth_id"), {})
     # Core attributes
     id = db.Column(db.Integer, primary_key=True)
-    cognito_id = db.Column(db.String(128))
     oauth_id = db.Column(db.Integer, unique=True)
     # User names are not constrained to be unique to allow for official/unofficial teams.
     name = db.Column(db.String(128))
@@ -371,6 +370,7 @@ class Users(db.Model):
     banned = db.Column(db.Boolean, default=False)
     verified = db.Column(db.Boolean, default=False)
     language = db.Column(db.String(32), nullable=True, default=None)
+    cognito_id = db.Column(db.String(36))
 
     # Relationship for Teams
     team_id = db.Column(db.Integer, db.ForeignKey("teams.id"))
