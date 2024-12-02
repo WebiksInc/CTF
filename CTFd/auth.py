@@ -239,9 +239,8 @@ def register():
                 log(
                     "registrations",
                     format="[{date}] {ip} - {name} registered with {email}",
-                    name=user.name,
-                    email=user
-                    .email,
+                    name=name,
+                    email=email_address,
                 )
                 
                 return redirect(url_for('auth.registration_confirm',username=name))
