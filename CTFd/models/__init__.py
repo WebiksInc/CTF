@@ -128,6 +128,7 @@ class Challenges(db.Model):
     flags = db.relationship("Flags", backref="challenge")
     comments = db.relationship("ChallengeComments", backref="challenge")
     topics = db.relationship("ChallengeTopics", backref="challenge")
+    phone_verification_required = db.Column(db.Boolean, default=False)
 
     class alt_defaultdict(defaultdict):
         """

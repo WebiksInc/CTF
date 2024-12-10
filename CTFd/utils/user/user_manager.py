@@ -13,7 +13,7 @@ class UserManager(Users):
         idp_user = self.idp_user_instance.get_user()['data']
 
         # Assign attributes from idp_user
-        idp_fields = ['name', 'email', 'type', 'secret', 'website', 'affiliation', 'country', 'hidden', 'banned', 'verified', 'language']
+        idp_fields = ['name', 'email','phone_number','phone_number_verified' 'type', 'secret', 'website', 'affiliation', 'country', 'hidden', 'banned', 'verified', 'language']
         for field in idp_fields:
             setattr(self, field, idp_user.get(field, ''))
 
@@ -25,6 +25,12 @@ class UserManager(Users):
     # Additional methods specific to UserManager 
     def update_user_attributes(self, attributes):
         return self.idp_user_instance.update_user_attributes(attributes)
+    
+    def send_verification_code(self, attribute_name):
+        return self.idp_user_instance.send_verification_code(attribute_name)
+    
+    def confirm_user_attribute(self, attribute_name, code):
+        return self.idp_user_instance.confirm_user_attribute(attribute_name, code)
         
 
 def getUserIdFromCognitoSub(userSub):
