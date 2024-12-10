@@ -23,6 +23,8 @@ from CTFd.utils.security.auth import login_user, logout_user
 from CTFd.utils.security.signing import unserialize
 from CTFd.utils.validators import ValidationError
 from CTFd.utils.aws.auth_helpers import cognito_registration, cognito_confirm_registration, cognito_login
+from CTFd.utils.user import get_user_manager
+from CTFd.utils.validators import validate_and_format_israeli_phone_number_strict
 auth = Blueprint("auth", __name__)
 
 @auth.route("/reset_password", methods=["POST", "GET"])
@@ -271,6 +273,40 @@ def registration_confirm():
             infos.append('Please check your email for the confirmation code.')
             username = request.args.get('username', '')  # Retrieve the username from the query parameter
             return render_template("registration_confirm.html", username=username)
+
+
+@auth.route("/phone_number_confirmation", methods=["POST"])
+@ratelimit(method="POST", limit=10, interval=5)
+def phone_number_confirmation():
+        
+        code = validate_and_format_israeli_phone_number_strict(request.form.get("code", "").strip())
+        if code == False:
+            return "Invalid phone number"
+        
+        user_manager = get_user_manager()
+       
+        phone_number_confirmation_result = user_manager.confirm_user_attribute('phone_number', code)
+        if(phone_number_confirmation_result['success'] is not True):
+            #Return error, and try again with the correct code
+            return render_template("registration_confirm.html", errors=[result['message']])
+        #return confirmation fof JS in the UI, that it can ask for the challenge again from thw API
+        return redirect()
+
+@auth.route("/phone_number_update", methods=["POST"])
+@ratelimit(method="POST", limit=10, interval=5)
+def phone_number_update():
+        user_manager = get_user_manager()
+        phone_number = request.form.get("phone_number", "").strip()
+        phone_number_update_result = user_manager.update_user_attributes({'phone_number', phone_number})
+        if(phone_number_update_result['success'] is not True):
+            #Return error, and try again with a correct phone number
+            return render_template("registration_confirm.html", errors=[result['message']])
+        #Trigger the verification process in the identity provider
+        user_manager.send_verification_code('phone_number')
+        #Return HTML to the UI that shows a form with an input for the CODE and submit button
+        return redirect()
+
+
 
 @auth.route("/login", methods=["POST", "GET"])
 @ratelimit(method="POST", limit=10, interval=5)

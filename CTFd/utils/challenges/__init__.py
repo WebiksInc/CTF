@@ -43,6 +43,7 @@ def get_all_challenges(admin=False, field=None, q=None, **query_args):
             category=c.category,
             requirements=c.requirements,
             tags=tag_schema.dump(c.tags).data,
+            phone_verification_required=c.phone_verification_required,
         )
         results.append(ct)
     return results

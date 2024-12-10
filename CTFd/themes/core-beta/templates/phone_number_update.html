@@ -1,0 +1,28 @@
+<div class="row submit-row">
+    <div class="col-12 col-sm-8">
+      {% block input %}
+        <input
+            id="challenge-id" class="challenge-id" type="hidden"
+            value="{{ challenge.id }}"
+        >
+        <input
+            id="challenge-input" class="challenge-input form-control"
+            type="text" name="submission"
+            @keyup.enter="confirmPhoneNumber()"
+            placeholder="{% trans %}Flag{% endtrans %}" x-model="submission"
+        >
+      {% endblock %}
+    </div>
+
+    <div class="col-12 col-sm-4 mt-3 mt-sm-0 key-submit">
+      {% block submit %}
+        <button
+            id="challenge-submit"
+            class="challenge-submit btn btn-outline-secondary w-100 h-100" type="submit"
+            @click.debounce.500ms="confirmPhoneNumber()"
+        >
+          {% trans %}Submit{% endtrans %}
+        </button>
+      {% endblock %}
+    </div>
+  </div>

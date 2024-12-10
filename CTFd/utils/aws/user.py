@@ -1,10 +1,16 @@
 from CTFd.utils.aws.constants import cognito
-#this function accepts key-value dictionary of user attributes and updates the user attributes in auth provider
+from typing import TypedDict, Any, Optional
+
+class Cognito_Function_Response(TypedDict, total=False):
+    success: bool
+    message: str
+    data: Optional[Any]
+
 class aws_user:
     def __init__(self, access_token):
         self.access_token = access_token
         pass
-    
+    #this function accepts key-value dictionary of user attributes and updates the user attributes in auth provider
     def update_user_attributes(self, attributes):
         attributes_to_update = []
         for key, value in attributes.items():
@@ -25,6 +31,32 @@ class aws_user:
             print(e)
             print(f"Error during User attributes update process: {e.response['Error']['Message']}")
             return {'success': False, 'message': e.response['Error']['Message']}
+
+    def send_verification_code(self, attribute_name):
+        payload = {
+            "AccessToken": self.access_token,
+            "AttributeName":attribute_name
+        }
+        try:
+            response = cognito.get_user_attribute_verification_code(**payload)
+            return {'success': True, 'message': 'Verification code sent', 'data': response}
+        except cognito.exceptions.ClientError as e:
+            print(f"Error during asking for cognito attribute verification code: {e.response['Error']['Message']}")
+            return {'success': False, 'message': e.response['Error']['Message']}
+
+    def confirm_user_attribute(self, attribute_name: str, code: str) -> Cognito_Function_Response:
+        payload = {
+            "AccessToken": self.access_token,
+            "AttributeName": attribute_name,
+            "Code": code,
+        }
+        try:
+            response = cognito.verify_user_attribute(**payload)
+            return {'success': True, 'message': f'{attribute_name} confirmed successfully!', 'data': response}
+        except cognito.exceptions.ClientError as e:
+            print(f"Error during user attribute confirmation: {e.response['Error']['Message']}")
+            return {'success': False, 'message': e.response['Error']['Message']}
+
 
     def get_user(self):
         payload = {

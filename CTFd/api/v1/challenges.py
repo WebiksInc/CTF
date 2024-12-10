@@ -51,10 +51,10 @@ from CTFd.utils.user import (
     get_current_team_attrs,
     get_current_user,
     get_current_user_attrs,
+    get_user_manager,
     is_admin,
 )
 from CTFd.utils.aws.challenges import send_deployment_request
-from CTFd.utils.security.auth import update_user_info
 challenges_namespace = Namespace(
     "challenges", description="Endpoint to retrieve Challenges"
 )
@@ -217,6 +217,7 @@ class ChallengeList(Resource):
                     "tags": tag_schema.dump(challenge.tags).data,
                     "template": challenge_type.templates["view"],
                     "script": challenge_type.scripts["view"],
+                    "phone_verification_required":challenge.phone_verification_required,
                 }
             )
 
@@ -347,6 +348,13 @@ class Challenge(Resource):
                     abort(403)
             else:
                 abort(403)
+        if chal.phone_verification_required == True and is_admin() != True:
+            if user.phone_number_verified != True:
+                #return phone verification template
+                confirm_phone_number_response = {}
+                confirm_phone_number_response["view"] = render_template()
+                return {"success": True, "data": confirm_phone_number_response}
+            return
 
         tags = [
             tag["value"] for tag in TagSchema("user", many=True).dump(chal.tags).data
@@ -423,7 +431,8 @@ class Challenge(Resource):
 
         
         challenge_secrets  = json.dumps(send_deployment_request(challenge_id, session['tokens']["IdToken"]))
-        update_user_info({'custom:active_c': challenge_id})
+        user_manager = get_user_manager()
+        user_manager.update_user_attributes({'custom:active_c': challenge_id})
         session['userInStage'] = challenge_id #to indicate that the user is in the stage, for opening the terminal
         response["secrets"] = challenge_secrets
         response["solves"] = solve_count
@@ -554,10 +563,19 @@ class ChallengeAttempt(Resource):
 
         if challenge.state == "hidden":
             abort(404)
-
         if challenge.state == "locked":
             abort(403)
-
+        #block the action if the stage requires phone verification and the user hasn't verified his number yet
+        if challenge.phone_verification_required == True :
+            if current_user.get_current_user()["phone_number_verified"] == False :
+                log(
+                    "submissions",
+                    "[{date}] {name} submitted {submission} on {challenge_id} that requires phone verification process without having verified his phone number",
+                    name=user.name,
+                    submission=request_data.get("submission", "").encode("utf-8"),
+                    challenge_id=challenge_id,
+                )
+                abort(403)
         if challenge.requirements:
             requirements = challenge.requirements.get("prerequisites", [])
             solve_ids = (
