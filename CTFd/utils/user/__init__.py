@@ -17,8 +17,7 @@ from CTFd.utils.security.signing import hmac
 from CTFd.utils.user.user_manager import UserManager
 def get_current_user():
     if authed():
-        user = Users.query.filter_by(id=session["id"]).first()
-
+        user = get_user_manager()
         # Check if the session is still valid
         session_hash = session.get("hash")
         if session_hash:
@@ -31,6 +30,11 @@ def get_current_user():
                 abort(error)
 
         return user
+    else:
+        return None
+def get_user_manager():
+    if authed():
+        return UserManager(session["id"], session['tokens']["AccessToken"])
     else:
         return None
 
@@ -54,6 +58,7 @@ def get_user_attrs(user_id, access_token):
         for field in UserAttrs._fields:
             d[field] = getattr(user, field)
         return UserAttrs(**d)
+    logout_user()
     return None
 
 
