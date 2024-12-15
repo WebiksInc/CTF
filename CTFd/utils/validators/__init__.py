@@ -51,7 +51,7 @@ def validate_language(language):
     if LANGUAGE_NAMES.get(language) is None:
         raise ValidationError("Invalid Language")
 
-def validate_and_format_israeli_phone_number_strict(phone_number):
+def validate_and_format_israeli_phone_number_strict(phone_number: str) -> str | False:
     """
     Validates and formats an Israeli phone number with strict rules:
     - Starts with +972 and matches valid Israeli mobile/landline formats.
@@ -64,20 +64,12 @@ def validate_and_format_israeli_phone_number_strict(phone_number):
         str: The phone number in the +972... format if valid.
         None: If the phone number is invalid.
     """
-    # Regular expression for the two formats
-    pattern_plus972 = r"^\+9725[01234578]-?\d{7}$"  # Matches +972 mobile format
-    pattern_zero_prefix = r"^05[01234578]-?\d{7}$"  # Matches 0... mobile format with optional -
-
+    #regex for phone number validation
+    pattern = r"^(?:\+9725|05)[01234578]-?\d{7}$"
     # Validate and format +972 format
-    if re.match(pattern_plus972, phone_number):
-        return phone_number  # Already in +972 format
-
-    # Validate and format 0... format
-    elif re.match(pattern_zero_prefix, phone_number):
-        # Remove "-" from phone_number
-        cleaned_phone_number = phone_number.replace("-", "")
-        # Convert 0... to +972...
-        return "+972" + cleaned_phone_number[1:]
-
-    # If neither format matches, return None (invalid number)
+    if re.match(pattern, phone_number):
+        if phone_number[0] == "0":
+            # Replace 0 with +972 if needed
+            phone_number = "+972" + phone_number[1:]
+        return phone_number.replace("-", "") 
     return False
