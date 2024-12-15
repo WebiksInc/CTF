@@ -1,4 +1,4 @@
-"""Add cognito_id column to users table
+"""Add cognito_id column to users table And phone_verification_required to challenges table
 
 Revision ID: 7096a073f6b3
 Revises: 4fe3eeed9a9d
@@ -18,7 +18,9 @@ depends_on = None
 
 def upgrade():
     op.add_column("users", sa.Column("cognito_id", sa.String(length=36), nullable=True))
+    op.add_column("challenges", sa.Column("phone_verification_required", sa.Boolean(), default=False))
 
 
 def downgrade():
     op.drop_column("users", "cognito_id")
+    op.drop_column("challenges", "phone_verification_required")

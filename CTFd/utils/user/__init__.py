@@ -170,16 +170,19 @@ def is_admin():
         return False
 
 
-def is_verified():
-    if get_config("verify_emails"):
+def is_email_verified():
         user = get_current_user_attrs()
         if user:
-            return user.verified
+            return user.email_verified
         else:
             return False
-    # If config doesn't specify to verify emails, then everyone is 'verified'
-    else:
-        return True
+def is_phone_number_verified():
+        user = get_current_user_attrs()
+        if user:
+            return user.phone_number_verified
+        else:
+            return False
+
 
 
 def get_ip(req=None):
