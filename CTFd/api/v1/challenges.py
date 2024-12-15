@@ -349,7 +349,7 @@ class Challenge(Resource):
             else:
                 abort(403)
         if chal.phone_verification_required == True and is_admin() != True:
-            if user.phone_number_verified != True:
+            if current_user.is_phone_number_verified != True:
                 #return phone verification template
                 confirm_phone_number_response = {}
                 confirm_phone_number_response["view"] = render_template()
@@ -567,7 +567,7 @@ class ChallengeAttempt(Resource):
             abort(403)
         #block the action if the stage requires phone verification and the user hasn't verified his number yet
         if challenge.phone_verification_required == True :
-            if current_user.get_current_user()["phone_number_verified"] == False :
+            if current_user.is_phone_number_verified == False :
                 log(
                     "submissions",
                     "[{date}] {name} submitted {submission} on {challenge_id} that requires phone verification process without having verified his phone number",

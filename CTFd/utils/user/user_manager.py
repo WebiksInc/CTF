@@ -13,7 +13,7 @@ class UserManager(Users):
         idp_user = self.idp_user_instance.get_user()['data']
 
         # Assign attributes from idp_user
-        idp_fields = ['name', 'email','phone_number','phone_number_verified' 'type', 'secret', 'website', 'affiliation', 'country', 'hidden', 'banned', 'verified', 'language']
+        idp_fields = ['name', 'email','email_verified','phone_number','phone_number_verified' 'type', 'secret', 'website', 'affiliation', 'country', 'hidden', 'banned', 'verified', 'language']
         for field in idp_fields:
             setattr(self, field, idp_user.get(field, ''))
 
