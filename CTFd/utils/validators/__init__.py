@@ -65,8 +65,8 @@ def validate_and_format_israeli_phone_number_strict(phone_number):
         None: If the phone number is invalid.
     """
     # Regular expression for the two formats
-    pattern_plus972 = r"^\+9725[0-9]-?\d{7}$"  # Matches +972 mobile format
-    pattern_zero_prefix = r"^05[0-9]-?\d{7}$"  # Matches 0... mobile format with optional -
+    pattern_plus972 = r"^\+9725[01234578]-?\d{7}$"  # Matches +972 mobile format
+    pattern_zero_prefix = r"^05[01234578]-?\d{7}$"  # Matches 0... mobile format with optional -
 
     # Validate and format +972 format
     if re.match(pattern_plus972, phone_number):
