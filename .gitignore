@@ -68,6 +68,10 @@ CTFd/uploads
 .data/
 .ctfd_secret_key
 .*.swp
+#remove js assets files from git
+CTFd/themes/core-beta/static/assets
+#remove manifest.json from git
+CTFd/themes/core-beta/static/manifest.json
 
 # Vagrant
 .vagrant
