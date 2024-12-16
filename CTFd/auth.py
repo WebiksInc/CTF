@@ -23,6 +23,7 @@ from CTFd.utils.security.auth import login_user, logout_user
 from CTFd.utils.security.signing import unserialize
 from CTFd.utils.validators import ValidationError
 from CTFd.utils.aws.auth_helpers import cognito_registration, cognito_confirm_registration, cognito_login
+
 auth = Blueprint("auth", __name__)
 
 @auth.route("/reset_password", methods=["POST", "GET"])
@@ -235,14 +236,13 @@ def register():
                 db.session.add(user)
                 db.session.commit()
                 db.session.flush()
-                db.session.close()
+
                 log(
-                    "registrations",
-                    format="[{date}] {ip} - {name} registered with {email}",
-                    name=name,
-                    email=email_address,
+                    "registration",
+                    f"{name} registered with email: {email_address}",
+                    user_id = user.id
                 )
-                
+                db.session.close()
                 return redirect(url_for('auth.registration_confirm',username=name))
         db.session.close()
 
@@ -286,6 +286,10 @@ def login():
             return render_template("login.html", errors=errors)
         #login succeeded!
         login_user(authenticationResult['data']['AuthenticationResult'])
+        log(
+                    "login",
+                    f"{username} logged in",
+                )
         return redirect(url_for("challenges.listing"))
 
 
@@ -333,6 +337,10 @@ def login():
 @auth.route("/logout")
 def logout():
     if current_user.authed():
+        log(
+                    "logout",
+                    f"logout",
+                )
         logout_user()
     return redirect(url_for("views.static_html"))
 

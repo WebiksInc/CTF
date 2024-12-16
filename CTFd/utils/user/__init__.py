@@ -181,6 +181,15 @@ def is_verified():
     else:
         return True
 
+def get_current_user_active_stage():
+    user = get_current_user_attrs()
+    if user:
+        if user.active_c:
+            return user.verified
+        else:
+            return False
+    else:
+        return False
 
 def get_ip(req=None):
     """Returns the IP address of the currently in scope request. The approach is to define a list of trusted proxies

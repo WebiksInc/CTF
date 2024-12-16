@@ -13,10 +13,14 @@ class UserManager(Users):
         idp_user = self.idp_user_instance.get_user()['data']
 
         # Assign attributes from idp_user
-        idp_fields = ['name', 'email', 'type', 'secret', 'website', 'affiliation', 'country', 'hidden', 'banned', 'verified', 'language']
+        idp_fields = ['name', 'email','custom:active_c' 'type', 'secret', 'website', 'affiliation', 'country', 'hidden', 'banned', 'verified', 'language']
         for field in idp_fields:
-            setattr(self, field, idp_user.get(field, ''))
-
+            if field.startswith('custom:'):
+                 # Strip the 'custom:' prefix
+                setattr(self, field[7:], idp_user.get(field, ''))
+            else:
+                setattr(self, field, idp_user.get(field, ''))
+                
         # Assign attributes from db_user
         db_fields = ['id', 'bracket_id', 'team_id', 'created']
         for field in db_fields:

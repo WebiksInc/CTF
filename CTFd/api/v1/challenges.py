@@ -421,9 +421,10 @@ class Challenge(Resource):
         # else:
         #     attempts = 0
 
-        
-        challenge_secrets  = json.dumps(send_deployment_request(challenge_id, session['tokens']["IdToken"]))
-        update_user_info({'custom:active_c': challenge_id})
+        if current_user.get_current_user_active_stage() == False:
+            challenge_secrets  = json.dumps(send_deployment_request(challenge_id, session['tokens']["IdToken"]))
+            update_user_info({'custom:active_c': challenge_id})
+            log("stage_start","user started a stage")
         session['userInStage'] = challenge_id #to indicate that the user is in the stage, for opening the terminal
         response["secrets"] = challenge_secrets
         response["solves"] = solve_count
@@ -582,18 +583,16 @@ class ChallengeAttempt(Resource):
         # Anti-bruteforce / submitting Flags too quickly
         kpm = current_user.get_wrong_submissions_per_minute(user.account_id)
         kpm_limit = int(get_config("incorrect_submissions_per_min", default=10))
+        submission = request_data.get("submission", "").encode("utf-8")
         if kpm > kpm_limit:
             if ctftime():
                 chal_class.fail(
                     user=user, team=team, challenge=challenge, request=request
                 )
             log(
-                "submissions",
-                "[{date}] {name} submitted {submission} on {challenge_id} with kpm {kpm} [TOO FAST]",
-                name=user.name,
-                submission=request_data.get("submission", "").encode("utf-8"),
-                challenge_id=challenge_id,
-                kpm=kpm,
+                "rate_limit_exceeded_in_solve_attempt",
+                " {user.name} submitted {submission} on {challenge_id} with kpm {kpm} [TOO FAST]",
+                submission = submission,
             )
             # Submitting too fast
             return (
@@ -637,12 +636,9 @@ class ChallengeAttempt(Resource):
                     clear_challenges()
 
                 log(
-                    "submissions",
-                    "[{date}] {name} submitted {submission} on {challenge_id} with kpm {kpm} [CORRECT]",
-                    name=user.name,
-                    submission=request_data.get("submission", "").encode("utf-8"),
-                    challenge_id=challenge_id,
-                    kpm=kpm,
+                    "correct_stage_solve",
+                    "user correctly solved stage",
+
                 )
                 return {
                     "success": True,
@@ -657,12 +653,8 @@ class ChallengeAttempt(Resource):
                     clear_challenges()
 
                 log(
-                    "submissions",
-                    "[{date}] {name} submitted {submission} on {challenge_id} with kpm {kpm} [WRONG]",
-                    name=user.name,
-                    submission=request_data.get("submission", "").encode("utf-8"),
-                    challenge_id=challenge_id,
-                    kpm=kpm,
+                    "incorrect_stage_solve",
+                    "user entered wrong flag in solving attempt of stage",
                 )
 
                 if max_tries:
@@ -689,14 +681,7 @@ class ChallengeAttempt(Resource):
 
         # Challenge already solved
         else:
-            log(
-                "submissions",
-                "[{date}] {name} submitted {submission} on {challenge_id} with kpm {kpm} [ALREADY SOLVED]",
-                name=user.name,
-                submission=request_data.get("submission", "").encode("utf-8"),
-                challenge_id=challenge_id,
-                kpm=kpm,
-            )
+            log("stage_already_solved","user tried to solved a stage which he already solved",stage_id=challenge_id)
             return {
                 "success": True,
                 "data": {

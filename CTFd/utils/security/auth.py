@@ -23,10 +23,12 @@ def save_token(token):
     # Save the token in the database
     session['tokens']  = token
     return {'success': True, 'message': 'Token saved' }
+def replaceCognitoSubInUserId(sub):
+    return getUserIdFromCognitoSub(sub)
 
 def login_user(tokens):
     token_data = get_user_token_data(tokens['IdToken'])
-    userCTFdId = getUserIdFromCognitoSub(token_data['sub'])
+    userCTFdId = replaceCognitoSubInUserId(token_data['sub'])
     session['id'] = userCTFdId
     session['tokens']  = tokens
     session["nonce"] = generate_nonce()
