@@ -10,7 +10,7 @@
     "verify": "vite build; git diff --quiet --exit-code"
   },
   "dependencies": {
-    "@ctfdio/ctfd-js": "^0.0.14",
+    "ctfd-js": "file:./ctfd-js", 
     "@fontsource/lato": "^4.5.3",
     "@fontsource/raleway": "^4.5.3",
     "@fortawesome/fontawesome-free": "6.5.1",
@@ -21,6 +21,7 @@
     "dayjs": "^1.11.0",
     "echarts": "^5.3.2",
     "lolight": "^1.4.0",
+    "uuid": "^11.0.3",
     "vue": "^3.2.25"
   },
   "devDependencies": {
@@ -29,5 +30,8 @@
     "rollup-plugin-copy": "^3.4.0",
     "sass": "^1.49.7",
     "vite": "^3.0.5"
+  },
+  "_moduleAliases": {
+    "@ctfdio/ctfd-js": "./ctfd-js"
   }
 }
