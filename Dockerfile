@@ -1,5 +1,22 @@
-FROM python:3.11-slim-bookworm AS build
+# Build FrontEnd files
+FROM node:slim AS ui_files_builder
+WORKDIR /opt/CTFd
+#TBD: Copy only the theme files
+COPY . /opt/CTFd
 
+WORKDIR /opt/CTFd/CTFd/themes/ctfd-js
+RUN yarn install --frozen-lockfile
+
+# Build User Panel UI files
+WORKDIR /opt/CTFd/CTFd/themes/core-beta
+RUN yarn install --frozen-lockfile \
+    && yarn build
+# Build Admin Panel UI files
+WORKDIR /opt/CTFd/CTFd/themes/admin
+RUN yarn install --frozen-lockfile \
+    && yarn build
+
+FROM python:3.11-slim-bookworm AS build
 WORKDIR /opt/CTFd
 
 # hadolint ignore=DL3008
@@ -36,7 +53,12 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --chown=1001:1001 . /opt/CTFd
+COPY --chown=1001:1001 . /opt/CTFd 
+RUN rm -rf /opt/CTFd/CTFd/themes/ 
+COPY --from=ui_files_builder /opt/CTFd/CTFd/themes/admin/static /opt/CTFd/CTFd/themes/admin/static
+COPY --from=ui_files_builder /opt/CTFd/CTFd/themes/admin/templates /opt/CTFd/CTFd/themes/admin/templates
+COPY --from=ui_files_builder /opt/CTFd/CTFd/themes/core-beta/static /opt/CTFd/CTFd/themes/core-beta/static
+COPY --from=ui_files_builder /opt/CTFd/CTFd/themes/core-beta/templates /opt/CTFd/CTFd/themes/core-beta/templates
 
 RUN useradd \
     --no-log-init \
