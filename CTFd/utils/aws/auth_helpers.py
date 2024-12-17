@@ -90,9 +90,19 @@ def cognito_confirm_registration(username, confirmation_code):
 
 def get_cognito_public_keys(cognito_region, user_pool_id):
     COGNITO_KEYS_URL = f"https://cognito-idp.{cognito_region}.amazonaws.com/{user_pool_id}/.well-known/jwks.json"
-    response = requests.get(COGNITO_KEYS_URL)
-    response.raise_for_status()
-    return response.json()
+    try:
+        response = requests.get(COGNITO_KEYS_URL)
+        response.raise_for_status()
+        return {
+            'success': True,
+            'message': 'Cognito public keys fetched successfully',
+            'data': response.json()
+        }
+    except requests.exceptions.RequestException as e:
+        return {
+            'success': False,
+            'message': f"Failed to fetch Cognito public keys: {e}"
+        }
 
 def validate_cognito_token(token):
     client_id = get_app_config("OAUTH_CLIENT_ID")
@@ -101,7 +111,8 @@ def validate_cognito_token(token):
     try:
         # Fetch Cognito public keys
         keys = get_cognito_public_keys(cognito_region, user_pool_id)
-
+        if(not keys['success']):
+            raise ValueError(keys['message'])
         # Decode the token header to get the kid
         headers = jwt.get_unverified_header(token)
         kid = headers['kid']
