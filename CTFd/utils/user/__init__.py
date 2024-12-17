@@ -158,7 +158,7 @@ def authed():
     token_validation_result = validate_token(session['tokens']['IdToken'])
     if token_validation_result['success'] and bool(session.get("id", False)):
         return True
-    return 
+    return
 
 
 def is_admin():

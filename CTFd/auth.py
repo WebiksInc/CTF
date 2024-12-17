@@ -1,24 +1,20 @@
 import base64  # noqa: I001
 
-import requests
 from flask import Blueprint, abort
 from flask import current_app as app
 from flask import redirect, render_template, request, session, url_for
 from itsdangerous.exc import BadSignature, BadTimeSignature, SignatureExpired
 
-from CTFd.cache import clear_team_session, clear_user_session
-from CTFd.models import Brackets, Teams, UserFieldEntries, UserFields, Users, db
-from CTFd.utils import config, email, get_app_config, get_config
+from CTFd.cache import clear_user_session
+from CTFd.models import Brackets, UserFields, Users, db
+from CTFd.utils import config, email, get_config
 from CTFd.utils import user as current_user
 from CTFd.utils import validators
 from CTFd.utils.config import is_teams_mode
-from CTFd.utils.config.integrations import mlc_registration
-from CTFd.utils.config.visibility import registration_visible
 from CTFd.utils.decorators import ratelimit
 from CTFd.utils.decorators.visibility import check_registration_visibility
-from CTFd.utils.helpers import error_for, get_errors, markup, get_infos
+from CTFd.utils.helpers import get_errors, markup, get_infos
 from CTFd.utils.logging import log
-from CTFd.utils.modes import TEAMS_MODE
 from CTFd.utils.security.auth import login_user, logout_user
 from CTFd.utils.security.signing import unserialize
 from CTFd.utils.validators import ValidationError
@@ -222,7 +218,7 @@ def register():
             )
         else:
             with app.app_context():
-               
+
                 cognito_registration_process = cognito_registration({'username': name, 'email': email_address, 'password': password})
                 if(cognito_registration_process['success'] is not True):
                     return render_template(
@@ -339,7 +335,7 @@ def logout():
     if current_user.authed():
         log(
                     "logout",
-                    f"logout",
+                    "logout",
                 )
         logout_user()
     return redirect(url_for("views.static_html"))

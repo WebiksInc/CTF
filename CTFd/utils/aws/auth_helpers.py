@@ -34,8 +34,6 @@ def cognito_registration(user):
             {"Name": "email", "Value": user['email']},
         ],
     }
-    url = 'https://ctf.auth.il-central-1.amazoncognito.com'
-    
     # Make the POST request
     #response = requests.post(url, headers=headers, data=json.dumps(payload))
     try:

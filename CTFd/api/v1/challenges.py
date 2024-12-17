@@ -12,7 +12,7 @@ from CTFd.constants import RawEnum
 from CTFd.models import ChallengeFiles as ChallengeFilesModel
 from CTFd.models import Challenges
 from CTFd.models import ChallengeTopics as ChallengeTopicsModel
-from CTFd.models import Fails, Flags, Hints, HintUnlocks, Solves, Submissions, Tags, db
+from CTFd.models import Fails, Flags, Hints, Solves, Tags, db
 from CTFd.plugins.challenges import CHALLENGE_CLASSES, get_chal_class
 from CTFd.schemas.challenges import ChallengeSchema
 from CTFd.schemas.flags import FlagSchema
@@ -593,6 +593,7 @@ class ChallengeAttempt(Resource):
                 "rate_limit_exceeded_in_solve_attempt",
                 " {user.name} submitted {submission} on {challenge_id} with kpm {kpm} [TOO FAST]",
                 submission = submission,
+                kpm = kpm,
             )
             # Submitting too fast
             return (
