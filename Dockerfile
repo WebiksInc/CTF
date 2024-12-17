@@ -5,16 +5,16 @@ WORKDIR /opt/CTFd
 COPY . /opt/CTFd
 
 WORKDIR /opt/CTFd/CTFd/themes/ctfd-js
-RUN npm install
+RUN yarn install --frozen-lockfile
 
 # Build User Panel UI files
 WORKDIR /opt/CTFd/CTFd/themes/core-beta
-RUN npm install \
-    && npm run build
+RUN yarn install --frozen-lockfile \
+    && yarn build
 # Build Admin Panel UI files
 WORKDIR /opt/CTFd/CTFd/themes/admin
-RUN npm install \
-        && npm run build
+RUN yarn install --frozen-lockfile \
+    && yarn build
 
 FROM python:3.11-slim-bookworm AS build
 WORKDIR /opt/CTFd
