@@ -10,7 +10,6 @@
     "verify": "vite build; git diff --quiet --exit-code"
   },
   "dependencies": {
-    "ctfd-js": "file:./ctfd-js", 
     "@fontsource/lato": "^4.5.3",
     "@fontsource/raleway": "^4.5.3",
     "@fortawesome/fontawesome-free": "6.5.1",
@@ -18,10 +17,11 @@
     "alpinejs": "^3.9.1",
     "bootstrap": "^5.3.3",
     "bootstrap-multimodal": "~1.0.4",
+    "cash-dom": "^8.1.5",
+    "ctfd-js": "file:../ctfd-js",
     "dayjs": "^1.11.0",
     "echarts": "^5.3.2",
     "lolight": "^1.4.0",
-    "uuid": "^11.0.3",
     "vue": "^3.2.25"
   },
   "devDependencies": {

@@ -9,11 +9,11 @@ export default defineConfig({
   resolve: {
     alias: {
       "~": resolve(__dirname, "./node_modules/"),
-      "@ctfdio/ctfd-js": resolve(__dirname, "./ctfd-js")
+      "@ctfdio/ctfd-js": resolve(__dirname, "../ctfd-js")
     },
   },
   build: {
-    manifest: true,
+    manifest: "manifest.json",
     outDir: "static",
     rollupOptions: {
       plugins: [

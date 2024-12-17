@@ -68,11 +68,12 @@ CTFd/uploads
 .data/
 .ctfd_secret_key
 .*.swp
-#remove js assets files from git
+#remove js assets (created by vite) files from git
 CTFd/themes/core-beta/static/assets
-#remove manifest.json from git
+CTFd/themes/admin/static/assets
+#remove manifest.json (created by vite)  from git
 CTFd/themes/core-beta/static/manifest.json
-
+CTFd/themes/admin/static/assets
 # Vagrant
 .vagrant
 
