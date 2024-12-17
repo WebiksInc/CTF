@@ -113,6 +113,7 @@ def validate_cognito_token(token):
         keys = get_cognito_public_keys(cognito_region, user_pool_id)
         if(not keys['success']):
             raise ValueError(keys['message'])
+        keys = keys['data']
         # Decode the token header to get the kid
         headers = jwt.get_unverified_header(token)
         kid = headers['kid']
