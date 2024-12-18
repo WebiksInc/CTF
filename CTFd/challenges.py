@@ -1,16 +1,14 @@
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, render_template
 
 from CTFd.constants.config import ChallengeVisibilityTypes, Configs
-from CTFd.utils.config import is_teams_mode
 from CTFd.utils.dates import ctf_ended, ctf_paused, ctf_started
 from CTFd.utils.decorators import (
     during_ctf_time_only,
-    require_complete_profile,
     require_verified_emails,
 )
 from CTFd.utils.decorators.visibility import check_challenge_visibility
 from CTFd.utils.helpers import get_errors, get_infos
-from CTFd.utils.user import authed, get_current_team
+from CTFd.utils.user import authed
 
 challenges = Blueprint("challenges", __name__)
 
