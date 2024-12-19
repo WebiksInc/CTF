@@ -1,34 +1,31 @@
-FROM python:3.11-slim-bookworm AS build
 
-WORKDIR /opt/CTFd
+FROM python:3.11-slim-bookworm  as builder
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    gcc \
+    git
 
-# hadolint ignore=DL3008
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        build-essential \
-        libffi-dev \
-        libssl-dev \
-        git \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && python -m venv /opt/venv
+ENV POETRY_HOME="/opt/poetry"
+ENV PATH="$POETRY_HOME/bin:$PATH"
+RUN curl -sSL https://install.python-poetry.org | python3 -
 
-ENV PATH="/opt/venv/bin:$PATH"
+COPY ./poetry.lock ./pyproject.toml ./
+COPY ./logger/ /shared/logger/
 
-COPY . /opt/CTFd
+#the next 2 command are needed as long as we are in the development process of the package
+RUN sed -i 's#logger = {path = "../../shared/logger", develop = true}#logger = {path = "../../shared/logger", develop = false}#' pyproject.toml
+RUN poetry config virtualenvs.create false
+RUN poetry lock
 
-RUN pip install --no-cache-dir -r requirements.txt \
-    && for d in CTFd/plugins/*; do \
-        if [ -f "$d/requirements.txt" ]; then \
-            pip install --no-cache-dir -r "$d/requirements.txt";\
-        fi; \
-    done;
+# Copy the shared package written in pyproject.toml
 
+RUN poetry config virtualenvs.create false && \
+    poetry install --no-root --only main --no-dev
 
-FROM python:3.11-slim-bookworm AS release
-WORKDIR /opt/CTFd
-
-# hadolint ignore=DL3008
+FROM python:3.11-slim-bookworm 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         libffi8 \
@@ -36,6 +33,16 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+ENV PATH="/usr/local/lib/:$PATH"
+
+# Copy the installed packages from the builder image
+COPY --chown=1001:1001 --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+# Copy Flask and Gunicorn executables (CLI)
+# COPY --chown=1001:1001 --from=builder /usr/local/bin/flask /usr/local/bin/flask
+# COPY --chown=1001:1001 --from=builder /usr/local/bin/gunicorn /usr/local/bin/gunicorn
+COPY --chown=1001:1001 --from=builder /usr/local/bin/ /usr/local/bin/
+
+WORKDIR /opt/CTFd
 COPY --chown=1001:1001 . /opt/CTFd
 
 RUN useradd \
@@ -46,9 +53,6 @@ RUN useradd \
     && mkdir -p /var/log/CTFd /var/uploads \
     && chown -R 1001:1001 /var/log/CTFd /var/uploads /opt/CTFd \
     && chmod +x /opt/CTFd/docker-entrypoint.sh
-
-COPY --chown=1001:1001 --from=build /opt/venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
 
 USER 1001
 EXPOSE 8000

@@ -52,7 +52,7 @@ def RegistrationConfirmForm(*args, **kwargs):
 
         @property
         def extra(self):
-            return 
+            return
 
     return _RegistrationConfirmForm(*args, **kwargs)
 

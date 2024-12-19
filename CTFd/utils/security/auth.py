@@ -24,9 +24,12 @@ def save_token(token):
     session['tokens']  = token
     return {'success': True, 'message': 'Token saved' }
 
+def replaceCognitoSubInUserId(sub):
+    return getUserIdFromCognitoSub(sub)
+
 def login_user(tokens):
     token_data = get_user_token_data(tokens['IdToken'])
-    userCTFdId = getUserIdFromCognitoSub(token_data['sub'])
+    userCTFdId = replaceCognitoSubInUserId(token_data['sub'])
     session['id'] = userCTFdId
     session['tokens']  = tokens
     session["nonce"] = generate_nonce()
@@ -38,7 +41,7 @@ def login_user(tokens):
 def update_user(user):
     session["id"] = user.id
     session["hash"] = hmac(user.password)
-    
+
     session.permanent = True
 
     # Clear out any currently cached user attributes
@@ -73,6 +76,6 @@ def lookup_user_token(token):
         raise UserNotFoundException
     return None
 
-def update_user_info(attributes_list): 
+def update_user_info(attributes_list):
     user = UserManager(session["id"], session['tokens']["AccessToken"])
-    return user.update_user_attributes(attributes_list)    
+    return user.update_user_attributes(attributes_list)

@@ -141,8 +141,8 @@ def isUserInStage():
             return True
     token_validation_result = validate_token(session['tokens']['IdToken'])
     if token_validation_result['success']:
-        if token_validation_result['data'].get('custom:active_c'):
-            if token_validation_result['data']['custom:active_c'] != "0":
+        if token_validation_result['data'].get('custom:current_challenge'):
+            if token_validation_result['data']['custom:current_challenge'] != "0":
                 return True
     return False
 
@@ -158,7 +158,7 @@ def authed():
     token_validation_result = validate_token(session['tokens']['IdToken'])
     if token_validation_result['success'] and bool(session.get("id", False)):
         return True
-    return 
+    return
 
 
 def is_admin():
@@ -181,6 +181,15 @@ def is_verified():
     else:
         return True
 
+def get_current_user_active_stage():
+    user = get_current_user_attrs()
+    if user:
+        if user.current_challenge:
+            return user.verified
+        else:
+            return False
+    else:
+        return False
 
 def get_ip(req=None):
     """Returns the IP address of the currently in scope request. The approach is to define a list of trusted proxies

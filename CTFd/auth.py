@@ -1,28 +1,25 @@
 import base64  # noqa: I001
 
-import requests
 from flask import Blueprint, abort
 from flask import current_app as app
 from flask import redirect, render_template, request, session, url_for
 from itsdangerous.exc import BadSignature, BadTimeSignature, SignatureExpired
 
-from CTFd.cache import clear_team_session, clear_user_session
-from CTFd.models import Brackets, Teams, UserFieldEntries, UserFields, Users, db
-from CTFd.utils import config, email, get_app_config, get_config
+from CTFd.cache import clear_user_session
+from CTFd.models import Brackets, UserFields, Users, db
+from CTFd.utils import config, email, get_config
 from CTFd.utils import user as current_user
 from CTFd.utils import validators
 from CTFd.utils.config import is_teams_mode
-from CTFd.utils.config.integrations import mlc_registration
-from CTFd.utils.config.visibility import registration_visible
 from CTFd.utils.decorators import ratelimit
 from CTFd.utils.decorators.visibility import check_registration_visibility
-from CTFd.utils.helpers import error_for, get_errors, markup, get_infos
+from CTFd.utils.helpers import get_errors, markup, get_infos
 from CTFd.utils.logging import log
-from CTFd.utils.modes import TEAMS_MODE
 from CTFd.utils.security.auth import login_user, logout_user
 from CTFd.utils.security.signing import unserialize
 from CTFd.utils.validators import ValidationError
 from CTFd.utils.aws.auth_helpers import cognito_registration, cognito_confirm_registration, cognito_login
+
 auth = Blueprint("auth", __name__)
 
 @auth.route("/reset_password", methods=["POST", "GET"])
@@ -221,7 +218,7 @@ def register():
             )
         else:
             with app.app_context():
-               
+
                 cognito_registration_process = cognito_registration({'username': name, 'email': email_address, 'password': password})
                 if(cognito_registration_process['success'] is not True):
                     return render_template(
@@ -235,14 +232,14 @@ def register():
                 db.session.add(user)
                 db.session.commit()
                 db.session.flush()
-                db.session.close()
+
                 log(
-                    "registrations",
-                    format="[{date}] {ip} - {name} registered with {email}",
-                    name=name,
-                    email=email_address,
+                    "authentications",
+                    "new_user_registration",
+                    f"{name} registered with email: {email_address}",
+                    user_id = user.id
                 )
-                
+                db.session.close()
                 return redirect(url_for('auth.registration_confirm',username=name))
         db.session.close()
 
@@ -286,6 +283,7 @@ def login():
             return render_template("login.html", errors=errors)
         #login succeeded!
         login_user(authenticationResult['data']['AuthenticationResult'])
+        log("authentications","login",f"{username} logged in")
         return redirect(url_for("challenges.listing"))
 
 
@@ -333,6 +331,7 @@ def login():
 @auth.route("/logout")
 def logout():
     if current_user.authed():
+        log("authentications","logout","user logged out")
         logout_user()
     return redirect(url_for("views.static_html"))
 
