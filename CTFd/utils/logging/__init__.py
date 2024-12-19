@@ -24,8 +24,8 @@ def log(logger, event, message, **kwargs):
         **kwargs
     }
     if user:
-        if hasattr(user, 'active_c'):
-            extra_data['stage_id'] = user.active_c
+        if hasattr(user, 'current_challenge'):
+            extra_data['stage_id'] = user.current_challenge
         if hasattr(user, 'id'):
             extra_data['user_id'] = user.id
 

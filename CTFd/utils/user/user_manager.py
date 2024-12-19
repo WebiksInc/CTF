@@ -13,7 +13,7 @@ class UserManager(Users):
         idp_user = self.idp_user_instance.get_user()['data']
 
         # Assign attributes from idp_user
-        idp_fields = ['name', 'email','custom:active_c' 'type', 'secret', 'website', 'affiliation', 'country', 'hidden', 'banned', 'verified', 'language']
+        idp_fields = ['name', 'email','custom:current_challenge' 'type', 'secret', 'website', 'affiliation', 'country', 'hidden', 'banned', 'verified', 'language']
         for field in idp_fields:
             if field.startswith('custom:'):
                  # Strip the 'custom:' prefix

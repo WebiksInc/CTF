@@ -141,8 +141,8 @@ def isUserInStage():
             return True
     token_validation_result = validate_token(session['tokens']['IdToken'])
     if token_validation_result['success']:
-        if token_validation_result['data'].get('custom:active_c'):
-            if token_validation_result['data']['custom:active_c'] != "0":
+        if token_validation_result['data'].get('custom:current_challenge'):
+            if token_validation_result['data']['custom:current_challenge'] != "0":
                 return True
     return False
 
@@ -184,7 +184,7 @@ def is_verified():
 def get_current_user_active_stage():
     user = get_current_user_attrs()
     if user:
-        if user.active_c:
+        if user.current_challenge:
             return user.verified
         else:
             return False

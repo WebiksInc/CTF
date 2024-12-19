@@ -423,7 +423,7 @@ class Challenge(Resource):
 
         if current_user.get_current_user_active_stage() == False:
             challenge_secrets  = json.dumps(send_deployment_request(challenge_id, session['tokens']["IdToken"]))
-            update_user_info({'custom:active_c': challenge_id})
+            update_user_info({'custom:current_challenge': challenge_id})
             log("challenges","stage_start","user started a stage")
         session['userInStage'] = challenge_id #to indicate that the user is in the stage, for opening the terminal
         response["secrets"] = challenge_secrets
