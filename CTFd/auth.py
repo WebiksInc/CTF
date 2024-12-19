@@ -234,7 +234,8 @@ def register():
                 db.session.flush()
 
                 log(
-                    "registration",
+                    "authentications",
+                    "new_user_registration",
                     f"{name} registered with email: {email_address}",
                     user_id = user.id
                 )
@@ -282,10 +283,7 @@ def login():
             return render_template("login.html", errors=errors)
         #login succeeded!
         login_user(authenticationResult['data']['AuthenticationResult'])
-        log(
-                    "login",
-                    f"{username} logged in",
-                )
+        log("authentications","login",f"{username} logged in")
         return redirect(url_for("challenges.listing"))
 
 
@@ -333,10 +331,7 @@ def login():
 @auth.route("/logout")
 def logout():
     if current_user.authed():
-        log(
-                    "logout",
-                    "logout",
-                )
+        log("authentications","logout","user logged out")
         logout_user()
     return redirect(url_for("views.static_html"))
 

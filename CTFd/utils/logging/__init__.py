@@ -1,12 +1,24 @@
 import logging
 import logging.handlers
 from CTFd.utils.user import get_ip, get_user_manager
+
 # Configure the logging format
 
 
-def log(event, message, **kwargs):
+def log(logger, event, message, **kwargs):
     user = get_user_manager()
-    logger = logging.getLogger('ctfd')
+    logger = logging.getLogger(logger)
+
+    log_levels = {
+            "DEBUG": logging.DEBUG,
+            "INFO": logging.INFO,
+            "WARNING": logging.WARNING,
+            "ERROR": logging.ERROR,
+            "CRITICAL": logging.CRITICAL
+    }
+    #if kwargs contains a log level, use it, otherwise default to INFO
+    level = log_levels.get(kwargs.pop("level", "INFO"), logging.INFO)
+
     extra_data = {
         "ip": get_ip(),
         **kwargs
@@ -24,5 +36,5 @@ def log(event, message, **kwargs):
 
     }
 
-    logger.info(message, extra=extra)
+    logger.log(level, message, extra=extra)
 

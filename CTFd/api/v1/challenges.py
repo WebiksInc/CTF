@@ -424,7 +424,7 @@ class Challenge(Resource):
         if current_user.get_current_user_active_stage() == False:
             challenge_secrets  = json.dumps(send_deployment_request(challenge_id, session['tokens']["IdToken"]))
             update_user_info({'custom:active_c': challenge_id})
-            log("stage_start","user started a stage")
+            log("challenges","stage_start","user started a stage")
         session['userInStage'] = challenge_id #to indicate that the user is in the stage, for opening the terminal
         response["secrets"] = challenge_secrets
         response["solves"] = solve_count
@@ -590,6 +590,7 @@ class ChallengeAttempt(Resource):
                     user=user, team=team, challenge=challenge, request=request
                 )
             log(
+                "challenges",
                 "rate_limit_exceeded_in_solve_attempt",
                 " {user.name} submitted {submission} on {challenge_id} with kpm {kpm} [TOO FAST]",
                 submission = submission,
@@ -637,6 +638,7 @@ class ChallengeAttempt(Resource):
                     clear_challenges()
 
                 log(
+                    "challenges",
                     "correct_stage_solve",
                     "user correctly solved stage",
 
@@ -654,6 +656,7 @@ class ChallengeAttempt(Resource):
                     clear_challenges()
 
                 log(
+                    "challenges",
                     "incorrect_stage_solve",
                     "user entered wrong flag in solving attempt of stage",
                 )
@@ -682,7 +685,7 @@ class ChallengeAttempt(Resource):
 
         # Challenge already solved
         else:
-            log("stage_already_solved","user tried to solved a stage which he already solved",stage_id=challenge_id)
+            log("challenges","stage_already_solved","user tried to solved a stage which he already solved",stage_id=challenge_id)
             return {
                 "success": True,
                 "data": {
