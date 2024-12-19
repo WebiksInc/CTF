@@ -1,6 +1,3 @@
-TMP_DIR := /Users/itc/Desktop/newtest/ctf-platform/projects/CTF/temp
-IMAGE_NAME := ctfd
-
 lint:
 	ruff check --select E,F,W,B,C4,I --ignore E402,E501,E712,B904,B905,I001 --exclude=CTFd/uploads CTFd/ migrations/ tests/
 	isort --profile=black --check-only --skip=CTFd/uploads --skip-glob **/node_modules CTFd/ tests/
@@ -25,14 +22,7 @@ test:
 	bandit -r CTFd -x CTFd/uploads --skip B105,B322
 	pipdeptree
 	yarn --cwd CTFd/themes/admin verify
-build:
-	rm -rf $(TMP_DIR)
-	# Copy project files
-	cp -r . $(TMP_DIR)
-	# Copy the shared logger from the shared folder in monorepo
-	cp -r ../../shared/logger $(TMP_DIR)/logger
-	docker build -t  $(IMAGE_NAME) $(TMP_DIR) 2>&1 | tee build.log
-	rm -rf $(TMP_DIR)
+
 coverage:
 	coverage html --show-contexts
 

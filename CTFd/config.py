@@ -131,7 +131,7 @@ class ServerConfig(object):
         )
         # Override the threshold of cached values on the filesystem. The default is 500. Don't change unless you know what you're doing.
         CACHE_THRESHOLD: int = 0
-
+    
     APP_ENV: str = empty_str_cast(config_ini["server"]["APP_ENV"])
 
     # === SECURITY ===

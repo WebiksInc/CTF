@@ -1,40 +1,19 @@
 import logging
 import logging.handlers
-from CTFd.utils.user import get_ip, get_user_manager
+import time
 
-# Configure the logging format
+from flask import session
+
+from CTFd.utils.user import get_ip
 
 
-def log(logger, event, message, **kwargs):
-    user = get_user_manager()
+def log(logger, format, **kwargs):
     logger = logging.getLogger(logger)
-
-    log_levels = {
-            "DEBUG": logging.DEBUG,
-            "INFO": logging.INFO,
-            "WARNING": logging.WARNING,
-            "ERROR": logging.ERROR,
-            "CRITICAL": logging.CRITICAL
-    }
-    #if kwargs contains a log level, use it, otherwise default to INFO
-    level = log_levels.get(kwargs.pop("level", "INFO"), logging.INFO)
-
-    extra_data = {
+    props = {
+        "id": session.get("id"),
+        "date": time.strftime("%m/%d/%Y %X"),
         "ip": get_ip(),
-        **kwargs
     }
-    if user:
-        if hasattr(user, 'current_challenge'):
-            extra_data['stage_id'] = user.current_challenge
-        if hasattr(user, 'id'):
-            extra_data['user_id'] = user.id
-
-    extra = {
-        "extra_data": extra_data,
-        "trace_id": 123123,
-        "event": event,
-
-    }
-
-    logger.log(level, message, extra=extra)
-
+    props.update(kwargs)
+    msg = format.format(**props)
+    logger.info(msg)

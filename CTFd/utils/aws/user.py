@@ -4,7 +4,7 @@ class aws_user:
     def __init__(self, access_token):
         self.access_token = access_token
         pass
-
+    
     def update_user_attributes(self, attributes):
         attributes_to_update = []
         for key, value in attributes.items():
@@ -40,7 +40,7 @@ class aws_user:
             print(e)
             print(f"Error during user data fetching: {e.response['Error']['Message']}")
             return {'success': False, 'message': e.response['Error']['Message']}
-
+        
     def prepare_user_data(self, user_data):
         #loop thru user.attributes and prepare a dictionary
         user = {}

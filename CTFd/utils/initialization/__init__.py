@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import sys
-from logger.logger_config import setup_logger
+
 from flask import abort, redirect, render_template, request, session, url_for
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
@@ -132,10 +132,54 @@ def init_template_globals(app):
 
 
 def init_logs(app):
-    #Loggers Logic moved to shared/logger/logger_config.py in the monorepo.
-    #Just initialize a logger for each module
-    setup_logger("authentications")
-    setup_logger("challenges")
+    logger_submissions = logging.getLogger("submissions")
+    logger_logins = logging.getLogger("logins")
+    logger_registrations = logging.getLogger("registrations")
+
+    logger_submissions.setLevel(logging.INFO)
+    logger_logins.setLevel(logging.INFO)
+    logger_registrations.setLevel(logging.INFO)
+
+    log_dir = app.config["LOG_FOLDER"]
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+    logs = {
+        "submissions": os.path.join(log_dir, "submissions.log"),
+        "logins": os.path.join(log_dir, "logins.log"),
+        "registrations": os.path.join(log_dir, "registrations.log"),
+    }
+
+    try:
+        for log in logs.values():
+            if not os.path.exists(log):
+                open(log, "a").close()
+
+        submission_log = logging.handlers.RotatingFileHandler(
+            logs["submissions"], maxBytes=10485760, backupCount=5
+        )
+        login_log = logging.handlers.RotatingFileHandler(
+            logs["logins"], maxBytes=10485760, backupCount=5
+        )
+        registration_log = logging.handlers.RotatingFileHandler(
+            logs["registrations"], maxBytes=10485760, backupCount=5
+        )
+
+        logger_submissions.addHandler(submission_log)
+        logger_logins.addHandler(login_log)
+        logger_registrations.addHandler(registration_log)
+    except IOError:
+        pass
+
+    stdout = logging.StreamHandler(stream=sys.stdout)
+
+    logger_submissions.addHandler(stdout)
+    logger_logins.addHandler(stdout)
+    logger_registrations.addHandler(stdout)
+
+    logger_submissions.propagate = 0
+    logger_logins.propagate = 0
+    logger_registrations.propagate = 0
 
 
 def init_events(app):
